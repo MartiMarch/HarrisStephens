@@ -9,7 +9,7 @@ import cv2
 import numpy as np
 from datetime import datetime
 
-camara = cv2.VideoCapture(2)
+camara = cv2.VideoCapture(2, cv2.CAP_DSHOW)
 actualTime = 0
 puntosRelevantes = 0
 umbralSuperior = 1.5
