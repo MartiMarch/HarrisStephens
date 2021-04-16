@@ -1,16 +1,15 @@
-# Aalgoritmo Harris & Stephens
-
 """
- Vamos a buscar aquellas zonas con una variacion de imagenes mut grande. De esta forma obtendremos los puntos de interes.
+ Aalgoritmo Harris & Stephens
+
+ Vamos a buscar aquellas zonas con una variacion de imagenes muy grande. De esta forma obtendremos los puntos de interes.
  La idea del algoritmo es obtener aquellos puntos que hacen “esquina” mirando si tiene dos gradientes muy grandes en perpendicular.
-"""
 
+"""
 import cv2
 import numpy as np
 from datetime import datetime
 
-camara = cv2.VideoCapture(2, cv2.CAP_DSHOW)
-actualTime = 0
+camara = cv2.VideoCapture(1, cv2.CAP_DSHOW)
 puntosRelevantes = 0
 umbralSuperior = 1.5
 umbralInferior = 0.5
@@ -20,10 +19,10 @@ tiempoActual = 0
 while True:
     _, imagen = camara.read()
 
-    # La imágnen a color se trnsforma en una imágen en gris
+    # La imagen a color se transforma en una imagen en gris
     imagenGris = cv2.cvtColor(imagen, cv2.COLOR_BGR2GRAY)
 
-    # Se transforma la imagen en gri en un float
+    # Se transforma la imagen en gris a un float
     imagenGris = np.float32(imagenGris)
 
     """
@@ -44,25 +43,22 @@ while True:
     """
     harris = cv2.cornerHarris(imagenGris, 2, 3, 0.04)
 
-    #Obtenemos el numero total se esquinas
+    # Obtenemos el numero total de esquinas
     nEsquinas = np.sum(harris > 0.01 * harris.max())
 
-    #Cada 15 minutos se renuevan los puntos de referencia usados para comparar
+    # Cada 15 minutos se renuevan los puntos de referencia usados para comparar
     now = datetime.now()
     if now.timestamp() - tiempoActual > 9000000 or tiempoActual == 0:
         tiempoActual = now.timestamp()
         puntosRelevantes = nEsquinas
 
     # Para saber si se ha producido movimient lo que se hace es comparar si la cantidad de puntos entra dentro de un umbral.
-    print("Numero de esquinas: " + str(nEsquinas))
-    print("Umbral superior: " + str(puntosRelevantes * umbralSuperior))
-    print("Umbral inferior: " + str(puntosRelevantes * umbralInferior))
     if nEsquinas > (puntosRelevantes * umbralSuperior) or nEsquinas < (puntosRelevantes * umbralInferior):
         print("MOVIMIENTO")
 
-    # Del resultado anterior me quedo con el 1% de las esquinas totales más relevantes. Se represenán mediante puntos en azul.
+    # Del resultado anterior me quedo con el 1% de las esquinas totales más relevantes. Se representan mediante puntos en azul.
     imagen[harris>0.01 * harris.max()] = [0, 0, 255]
-    cv2.imshow("Harris - color", imagen);
 
+    cv2.imshow("Harris - color", imagen);
     if cv2.waitKey(2) & 0xFF == ord('q'):
         break
